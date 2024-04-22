@@ -108,13 +108,61 @@ python mcts_nbeats_optimization.py
 
 This will initiate a series of MCTS iterations to find optimal model settings, saving the results and iteration times to a CSV file.
 
-#### Structure
+#### Structure, Code Explanation and Detailed Functionality
 
-To continue with the README file for your GitHub repository, here is a detailed code breakdown of the Monte Carlo Tree Search (MCTS) implementation for hyperparameter tuning of the N-BEATS forecasting model, using the provided Python script.
+##### 1. **Node Class**
 
-#### Detailed Code Breakdown
+The `Node` class represents each hyperparameter combination as a node in the search tree. Here's a more detailed look at its methods and attributes:
 
-##### Key Imports and Configuration
+- **Attributes**:
+  - `parent`: Reference to the parent node, used to navigate back up the tree.
+  - `children`: List of child nodes, representing subsequent hyperparameter choices.
+  - `value`: The specific value of the hyperparameter this node represents.
+  - `variable`: The name of the hyperparameter.
+  - `visits`: Counts how many times this node has been visited during the search.
+  - `total_value`: Accumulates the total reward value obtained from model evaluations involving this node's hyperparameter settings.
+
+- **Methods**:
+  - `update(reward)`: Updates the node's statistics by incrementing the visit count and adding the reward obtained from a model evaluation. The reward typically depends on the model's performance metric, inversely related to the error rate.
+  - `calculate_ucb1(max_reward_seen)`: Calculates the Upper Confidence Bound (UCB) value for the node, which is used to balance exploration and exploitation during the search. The formula considers the number of visits to this node, the number of visits to the parent node, the node's average reward, and an exploration factor. It aims to prioritize nodes that have either been promising or not sufficiently explored.
+
+##### 2. **MCTree Class**
+
+This class manages the overall tree structure and execution of the MCTS algorithm:
+
+- **Attributes**:
+  - `root`: The initial node of the tree, typically representing a baseline or null hyperparameter set.
+  - `fixed_values`: A dictionary containing the mapping of each hyperparameter to its possible values.
+  - `max_reward_seen`: Tracks the highest reward encountered during the search, aiding in the normalization of rewards.
+  - `node_registry`: Helps in tracking all nodes and ensuring that each combination of hyperparameters is uniquely represented.
+  - `results`: List to store the results of each complete path exploration, including hyperparameters and their evaluation metrics.
+  - `iteration_times`: Records the time taken for each iteration to aid in performance analysis.
+
+- **Methods**:
+  - `run_iteration()`: This is a critical function where the MCTS algorithm is executed:
+    1. **Traversal**: Starting from the root, the tree is traversed down to a leaf node based on the UCB values.
+    2. **Expansion**: If the current node can be expanded (i.e., there are more hyperparameter values to explore), children are created and added.
+    3. **Simulation and Backpropagation**: Once a leaf node is reached, the model is evaluated, and the resulting reward is backpropagated up the tree to update the nodes' statistics.
+  - `save_results()`: After all iterations are complete, this method saves the results to a CSV file, providing a persistent record of the search outcomes.
+
+##### 3. **Model Evaluation**
+
+- **evaluate_model(params)**: This function encapsulates the evaluation of the N-BEATS model given a set of hyperparameters:
+  - **Model Setup**: The model is configured with parameters like the number of blocks, layers, learning rate, etc., and trained on the training dataset.
+  - **Prediction and Scoring**: After training, the model makes predictions, which are compared to the actual test data to compute the Mean Absolute Percentage Error (MAPE). The reward is then calculated as the inverse of MAPE to frame it as a maximization problem.
+
+##### 4. **Execution Loop**
+
+The main execution starts with defining the hyperparameter space, initializing the tree, and running a fixed number of iterations to explore the space effectively:
+
+- **Initialization**: The search space for each hyperparameter is defined and converted into a structured format that the `MCTree` can use.
+- **MCTS Execution**: The tree performs a predefined number of iterations, with each iteration exploring new paths or further exploring promising paths, driven by the UCB strategy.
+
+This breakdown explains how the different parts of the code work together to implement an effective MCTS algorithm for hyperparameter tuning in the context of time series forecasting with the N-BEATS model.
+
+##### Detailed Code Breakdown
+
+###### Key Imports and Configuration
 
 - **Basic Libraries**: The code uses Python libraries like `math`, `random`, `time`, `pandas` for data handling, and `tqdm` for progress tracking.
 - **PyTorch and Darts**: `torch` and specific classes from `darts` are imported to build and evaluate the forecasting model. This includes the `NBEATSModel`, `Scaler` for data scaling, and `mape` for evaluating model accuracy.
