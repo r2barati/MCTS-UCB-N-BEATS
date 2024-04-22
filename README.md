@@ -78,7 +78,6 @@ This project is released under the MIT License. Details can be found in the LICE
 
 This introduction sets the stage for the detailed implementation notebooks, providing a theoretical foundation and context for the optimization techniques used in the project. It prepares users to understand the importance and implications of each method's application to the N-BEATS model.
 
-```markdown
 # Monte Carlo Tree Search for N-BEATS Model Optimization
 
 This repository contains a Python implementation of a Monte Carlo Tree Search (MCTS) applied to the hyperparameter optimization of the N-BEATS forecasting model from the Darts library. The project leverages PyTorch for neural network operations and utilizes various optimization algorithms.
