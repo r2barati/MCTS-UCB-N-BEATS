@@ -67,27 +67,19 @@ This repository contains implementations of Grid Search, Random Search, and two 
 
 To run the provided examples, please refer to the individual notebook files for each method, which include comprehensive instructions and explanations of the underlying processes.
 
-## Contributing
-
-Contributions to improve the implementations or extend the repository's capabilities are welcome. Please feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is released under the MIT License. Details can be found in the LICENSE file.
-
 This introduction sets the stage for the detailed implementation notebooks, providing a theoretical foundation and context for the optimization techniques used in the project. It prepares users to understand the importance and implications of each method's application to the N-BEATS model.
 
-# Monte Carlo Tree Search for N-BEATS Model Optimization
+### Monte Carlo Tree Search for N-BEATS Model Optimization
 
 This repository contains a Python implementation of a Monte Carlo Tree Search (MCTS) applied to the hyperparameter optimization of the N-BEATS forecasting model from the Darts library. The project leverages PyTorch for neural network operations and utilizes various optimization algorithms.
 
-## Features
+#### Features
 
 - Implementation of the MCTS algorithm to explore and optimize model parameters.
 - Use of PyTorch and Darts libraries for constructing and training the N-BEATS model.
 - Extensive use of logging and tqdm for tracking the progress of computations.
 
-## Requirements
+#### Requirements
 
 To run this project, you will need the following libraries:
 
@@ -106,7 +98,7 @@ pip install pandas torch darts tqdm
 
 Ensure that you have a compatible version of PyTorch installed, suited to your system's specifications (CPU or GPU).
 
-## Usage
+#### Usage
 
 To execute the MCTS for N-BEATS model optimization, run the script from the command line:
 
@@ -116,16 +108,124 @@ python mcts_nbeats_optimization.py
 
 This will initiate a series of MCTS iterations to find optimal model settings, saving the results and iteration times to a CSV file.
 
-## Structure
+#### Structure
 
-The main components of the script include:
+To continue with the README file for your GitHub repository, here is a detailed code breakdown of the Monte Carlo Tree Search (MCTS) implementation for hyperparameter tuning of the N-BEATS forecasting model, using the provided Python script.
 
-- `Node` class for managing tree nodes.
-- `MCTree` class for handling the tree structure and MCTS operations.
-- Execution loop to perform MCTS iterations.
-- Logging and progress tracking using `tqdm`.
+#### Detailed Code Breakdown
 
-The optimization results are stored in 'mcts_search_results_low.csv' after running the script.
+##### Key Imports and Configuration
+
+- **Basic Libraries**: The code uses Python libraries like `math`, `random`, `time`, `pandas` for data handling, and `tqdm` for progress tracking.
+- **PyTorch and Darts**: `torch` and specific classes from `darts` are imported to build and evaluate the forecasting model. This includes the `NBEATSModel`, `Scaler` for data scaling, and `mape` for evaluating model accuracy.
+- **Logging**: Logging for PyTorch is set to `ERROR` to reduce console clutter during model training.
+
+```python
+import math
+import random
+import time
+import pandas as pd
+import torch
+from torch.optim import Adam, SGD, RMSprop
+from darts.models.forecasting.nbeats import NBEATSModel
+from darts.dataprocessing.transformers import Scaler
+from darts.metrics import mape
+import logging
+from tqdm import tqdm
+
+logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+logging.getLogger('torch').setLevel(logging.ERROR)
+```
+
+##### Node Class
+
+- **Initialization**: Each node in the MCTS represents a set of hyperparameters with properties to track the node's visits and total value from evaluations.
+- **Update and UCB Calculation**: The `update` method increments the visit count and accumulates value, while `calculate_ucb1` computes the UCB value used for navigating the search space, balancing exploration and exploitation.
+
+```python
+class Node:
+    def __init__(self, parent=None, value=None, variable=None, fixed_values=None):
+        self.parent = parent
+        self.children = []
+        self.value = value
+        self.variable = variable
+        self.visits = 0
+        self.total_value = 0
+        if fixed_values and variable is not None:
+            self.fixed_node_value = fixed_values[variable][value]
+        else:
+            self.fixed_node_value = 0  
+
+    def update(self, reward):
+        self.visits += 1
+        self.total_value += reward
+
+    def calculate_ucb1(self, max_reward_seen):
+        ...
+```
+
+##### MCTree Class
+
+- **Tree Initialization**: Sets up the root node and manages the registry of nodes.
+- **Running Iterations**: Conducts MCTS iterations by navigating from the root to suitable leaf nodes, expanding the tree, and updating nodes based on model evaluation outcomes.
+- **Saving Results**: Results of the search, including the hyperparameter configurations and corresponding performance metrics, are saved to a CSV file.
+
+```python
+class MCTree:
+    def __init__(self, fixed_values):
+        self.root = Node(fixed_values=fixed_values)
+        self.fixed_values = fixed_values
+        self.max_reward_seen = 0
+        ...
+
+    def run_iteration(self):
+        ...
+        
+    def save_results(self):
+        results_df = pd.DataFrame(self.results)
+        results_df['Iteration Time'] = pd.Series(self.iteration_times)
+        ...
+```
+
+##### Model Evaluation
+
+- **Model Setup and Training**: Configures the N-BEATS model with selected hyperparameters and trains it.
+- **Performance Evaluation**: The model's performance is measured using the MAPE, which influences the reward for the MCTS.
+
+```python
+def evaluate_model(self, params):
+    model = NBEATSModel(...)
+    model.fit(train, verbose=False)
+    prediction = model.predict(len(test))
+    prediction_rescaled = scaler.inverse_transform(prediction)
+    test_rescaled = scaler.inverse_transform(test)
+
+    model_mape = mape(test_rescaled, prediction_rescaled)
+
+    return 1 / model_mape if model_mape != 0 else float('inf')
+```
+
+##### Execution and Result Storage
+
+- **Initialization**: Defines the search space for the hyperparameters and prepares the tree for iterations.
+- **Loop Execution**: Runs a predetermined number of MCTS iterations to explore the hyperparameter space thoroughly.
+- **Results**: Outputs are saved and potentially displayed or analyzed further.
+
+```python
+search_space = { ... }
+
+fixed_values = {}
+for i, (key, values) in enumerate(search_space.items()):
+    fixed_values[key] = {i: value for i, value in enumerate(values)}
+
+tree = MCTree(fixed_values=fixed_values)
+for _ in range(100):  
+    tree.run_iteration()
+
+tree.save_results()
+```
+
+This detailed breakdown guides the user through each part of the script, clarifying how the MCTS is applied for optimizing hyperparameters in the N-BEATS model. This approach not only elucidates the operational aspects but also links them to the theoretical concepts outlined earlier in the README.
 
 ## Contributing
 
