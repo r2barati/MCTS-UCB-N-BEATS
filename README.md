@@ -1,7 +1,7 @@
 # MCTS-UCB-N-BEATS
 Using MCTS UCB for Hyperparameter Tuning of N-BEATS
 
-# Hyperparameter Tuning for Time Series Forecasting with N-BEATS
+# N-BEATS Hyperparameter Tuning using MCTS-UCB
 
 ## Background
 
