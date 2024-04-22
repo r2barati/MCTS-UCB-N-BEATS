@@ -74,7 +74,6 @@ Contributions to improve the implementations or extend the repository's capabili
 ## License
 
 This project is released under the MIT License. Details can be found in the LICENSE file.
-```
 
 This introduction sets the stage for the detailed implementation notebooks, providing a theoretical foundation and context for the optimization techniques used in the project. It prepares users to understand the importance and implications of each method's application to the N-BEATS model.
 
