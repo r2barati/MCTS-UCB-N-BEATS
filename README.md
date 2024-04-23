@@ -87,23 +87,7 @@ To run this project, you will need the following libraries:
 - `torch`
 - `darts`
 
-You can install the required Python packages using the following command:
-
-```bash
-pip install pandas torch darts tqdm
-```
-
 Ensure that you have a compatible version of PyTorch installed, suited to your system's specifications (CPU or GPU).
-
-#### Usage
-
-To execute the MCTS for N-BEATS model optimization, run the script from the command line:
-
-```bash
-python mcts_nbeats_optimization.py
-```
-
-This will initiate a series of MCTS iterations to find optimal model settings, saving the results and iteration times to a CSV file.
 
 #### Structure, Code Explanation and Detailed Functionality
 
